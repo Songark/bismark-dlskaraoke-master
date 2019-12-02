@@ -1,0 +1,46 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:keepScreenOn="true">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        android:src="@drawable/logoback" />
+
+    <LinearLayout
+        android:id="@+id/panelLoading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginLeft="@dimen/padding_arround1"
+        android:layout_marginRight="@dimen/padding_arround1"
+        android:gravity="center_vertical"
+        android:orientation="horizontal" >
+
+        <ProgressBar
+            android:id="@+id/proDownload"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/padding_arround1"
+            android:visibility="visible" />
+
+        <com.karaoke.view.StrockTextView
+            android:id="@+id/txtStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/padding_arround1"
+            android:text="@string/loading"
+            android:textColor="#0000ff"
+            android:textSize="@dimen/font_5"
+            app:textStroke="true"
+            app:textStrokeColor="#ffffff"
+            android:maxLines="2"
+            android:ellipsize="marquee"
+            android:singleLine="true"
+            app:textStrokeWidth="6.0" />
+    </LinearLayout>
+</FrameLayout>

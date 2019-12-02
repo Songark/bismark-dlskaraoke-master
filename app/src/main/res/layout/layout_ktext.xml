@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    <LinearLayout 
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="50"
+        android:gravity="center"
+        android:orientation="vertical">
+        <RelativeLayout 
+            android:id="@+id/rltUpEn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical">
+
+            <com.tbtc.jftv.text.KImageView
+                android:id="@+id/imgUpEnTxt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="matrix"
+                android:src="@null" />
+            <com.tbtc.jftv.text.KImageView
+                android:id="@+id/imgUpEnTxtRed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@null"
+                android:scaleType="matrix"/>
+        </RelativeLayout>
+        <RelativeLayout 
+            android:id="@+id/rltUp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical">
+
+            <com.tbtc.jftv.text.KImageView
+                android:id="@+id/imgUpTxt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="matrix"
+                android:src="@null" />
+
+            <com.tbtc.jftv.text.KImageView
+                android:id="@+id/imgUpTxtRed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="matrix"
+                android:src="@null" />
+        </RelativeLayout>
+    </LinearLayout>
+    <LinearLayout 
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="50"
+        android:gravity="center"
+        android:orientation="vertical">
+        <RelativeLayout 
+            android:id="@+id/rltDownEn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical">
+
+            <com.tbtc.jftv.text.KImageView
+                android:id="@+id/imgDownEnTxt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="matrix"
+                android:src="@null" />
+            <com.tbtc.jftv.text.KImageView
+                android:id="@+id/imgDownEnTxtRed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@null"
+                android:scaleType="matrix"/>
+        </RelativeLayout>
+        <RelativeLayout 
+            android:id="@+id/rltDown"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical">
+            <com.tbtc.jftv.text.KImageView
+                android:id="@+id/imgDownTxt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@null"
+                android:scaleType="fitXY"/>
+            <com.tbtc.jftv.text.KImageView 
+                android:id="@+id/imgDownTxtRed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@null"
+                android:scaleType="matrix"/>
+        </RelativeLayout>
+    </LinearLayout>
+</LinearLayout>

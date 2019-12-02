@@ -1,0 +1,81 @@
+<resources>
+    <string name="app_name">GlobalKaraoke</string>
+
+    <string name="loading">Loading...</string>
+    <string name="saving">Saving...</string>
+    <string name="alert_close">Close</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">Ok</string>
+    <string name="noname"></string>
+    <string name="finish_message">Press again to exit</string>
+    <string name="request_permission_hint">GlobalKaraoke app may need some permission</string>
+    <string name="request_permission">To use functions, please allow permissions and retry again.</string>
+
+    <!-- Menu -->
+    <string name="menu_settings">Settings</string>
+    <string name="menu_introduction">Introduction</string>
+    <string name="menu_share">Share</string>
+
+    <!-- Button -->
+    <string name="btn_keyplus">Key++</string>
+    <string name="btn_keyminus">Key--</string>
+    <string name="btn_speedplus">Speed++</string>
+    <string name="btn_speedminus">Speed--</string>
+    <string name="btn_mrar">Mr(Ar)</string>
+    <string name="btn_recording">Record</string>
+    <string name="btn_volumeplus">Vol++</string>
+    <string name="btn_volumeminus">Vol--</string>
+
+    <!-- Tab Titles -->
+    <string name="tab_recommend">Recommend</string>
+    <string name="tab_new">New</string>
+    <string name="tab_search">Search</string>
+    <string name="tab_favorites">Favourites</string>
+    <string name="tab_reserve">Reserve</string>
+
+    <string name="share_subject">You have been Invited to join GlobalKaraoke</string>
+    <string name="share_body">Check out the GlobalKaraoke app. It really good!\nhttp://www.globalkaraoke.com</string>
+
+    <string name="search_hint">Song, Artist</string>
+
+    <string name="select_midi">Please select song to play</string>
+
+
+    <!-- Loading Status Titles -->
+    <string name="msg_chk_storage">Checking storage&#8230;</string>
+    <string name="msg_chk_ram">Checking RAM&#8230;</string>
+    <string name="msg_chk_internet">Checking internet connection&#8230;</string>
+    <string name="msg_chk_appver">Checking update version&#8230;</string>
+    <string name="msg_init_setup">Importing settings&#8230;</string>
+    <string name="msg_chk_folder">Searching folders&#8230;</string>
+    <string name="msg_set_font">Setting font&#8230;</string>
+    <string name="msg_load_fanfare">Loading fanfares&#8230;</string>
+    <string name="msg_init_info">Loading music&#8230;</string>
+    <string name="msg_init_bgv">Loading background video&#8230;</string>
+    <string name="msg_init_player">Initializing player. Please don\'t turn off or press any key.</string>
+    <string name="msg_load_mmc">Loaded %1$d of MTV, %2$d of MP3, %3$d of CDG. Please restart app.</string>
+    <string name="msg_coin">Welcome! Your coins is %1$d now!</string>
+    <string name="msg_download">Downloading&#8230;</string>
+
+    <!-- Loading Error Titles -->
+    <string name="err_chk_storage">Sorry. Could not find storage.</string>
+    <string name="err_chk_ram">Sorry. Your device RAM size must be more than %1$dMB.</string>
+    <string name="err_chk_beta">Sorry. It\'s Beta version!</string>
+    <string name="err_chk_internet">Cannot run app because it isn\'t connected to internet.</string>
+    <string name="err_chk_appver">It occurs error for checking update version.</string>
+    <string name="err_init_setup">It occurs error for importing settings.</string>
+    <string name="err_chk_folder">It has unexpected error for searching folder.</string>
+    <string name="err_set_font">It occurs error for setting fonts.</string>
+    <string name="err_load_fanfare">It occurs error for loading fanfares.</string>
+    <string name="err_init_info">It occurs error for loading music.</string>
+    <string name="err_init_bgv">It occurs error for loading background video.</string>
+    <string name="err_init_player">Cannot initialize player now. After a few minutes, run again please.</string>
+    <string name="err_unknown_error">It has unexpected errors. Sorry for inconvenience!</string>
+
+    <!-- Midi Play Activity -->
+    <string name="composer">작 곡</string>
+    <string name="writer">작 사</string>
+    <string name="singer">노 래</string>
+    <string name="seperator"> : </string>
+    <string name="err_load_midi">Failed to load midi!</string>
+</resources>

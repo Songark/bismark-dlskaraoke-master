@@ -1,0 +1,31 @@
+<resources>
+
+
+    <declare-styleable name="StrockTextView">
+        <attr name="textStroke" format="boolean" />
+        <attr name="textStrokeWidth" format="float" />
+        <attr name="textStrokeColor" format="color" />
+    </declare-styleable>
+    <declare-styleable name="KImageView">
+        <attr name="scaleType" format="integer" />
+    </declare-styleable>
+    <declare-styleable name="RangeSeekBar">
+        <attr name="absoluteMinValue" format="integer|float" />
+        <attr name="absoluteMaxValue" format="integer|float" />
+        <attr name="singleThumb" format="boolean" />
+        <attr name="unit" format="string" />
+        <attr name="leftText" format="string" />
+        <attr name="leftPadding" format="integer" />
+    </declare-styleable>
+    <declare-styleable name="SegmentedGroup">
+        <attr name="corner_radius" format="dimension" />
+        <attr name="border_width" format="dimension" />
+        <attr name="tint_color" format="color" />
+        <attr name="checked_text_color" format="color" />
+    </declare-styleable>
+
+    <attr name="degree" format="integer" />
+    <attr name="transX" format="dimension" />
+    <attr name="transY" format="dimension" />
+
+</resources>

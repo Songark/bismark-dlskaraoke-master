@@ -1,0 +1,97 @@
+package com.karaoke.activity;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.res.Resources;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import com.karaoke.R;
+import com.karaoke.data.SongInfo;
+import com.sheetmusic.MidiPlayer;
+
+import java.util.ArrayList;
+
+public class MidiReserveActivity extends BaseActivity {
+
+    ListView lvMidi;
+    ReservedMidiDataAdapter midiRecommendAdapter;
+    ArrayList<SongInfo> arrayMidi = new ArrayList<SongInfo>();
+    int selectedSongItem;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_midi_recommend);
+
+        arrayMidi = MidiPlayer.getPlayer().getSelectedSongs();
+        selectedSongItem = -1;
+
+        lvMidi = (ListView) findViewById(R.id.lvMidi);
+        midiRecommendAdapter = new ReservedMidiDataAdapter(MidiReserveActivity.this);
+        lvMidi.setAdapter(midiRecommendAdapter);
+        lvMidi.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // Notify MainActivity to grab new file
+
+                // Update UI
+                // Toast.makeText(MidiRecommendActivity.this, "OnItemClicked", Toast.LENGTH_SHORT).show();
+                selectedSongItem = position;
+                midiRecommendAdapter.notifyDataSetChanged();
+            }
+        });
+    }
+
+    private class ReservedMidiDataAdapter extends BaseAdapter {
+
+        Context mContext;
+        int colorBackNormal;
+        int colorBackHighlight;
+        int colorTextNormal;
+        int colorTextHighlight;
+
+        public ReservedMidiDataAdapter(Context context) {
+            mContext = context;
+
+            Resources resource = context.getResources();
+            colorBackNormal = resource.getColor(R.color.white);
+            colorBackHighlight = resource.getColor(R.color.list_item_back_highlight);
+            colorTextNormal = resource.getColor(R.color.black);
+            colorTextHighlight = resource.getColor(R.color.font_color_title);
+        }
+
+        @Override
+        public int getCount() {
+            return 0;
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return position;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            if (convertView == null) {
+                convertView = LayoutInflater.from(mContext).inflate(R.layout.item_midi,
+                        null);
+            }
+
+            convertView.setTag(position);
+
+            return convertView;
+        }
+    }
+}

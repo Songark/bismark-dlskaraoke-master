@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<!--Theme Colors-->
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    
+    <!--App Colors-->
+    <color name="nocolor">#00000000</color>
+    <color name="dark">#ffefefef</color>
+    <color name="white">#ffffffff</color>
+    <color name="semi_white">#60ffffff</color>
+    <color name="black">#ff000000</color>
+    <color name="semi_black">#80000000</color>
+    <color name="grey">#ff808080</color>
+    <color name="transparent_grey">#80808080</color>
+    <color name="green">#ff027221</color>
+    <color name="dark_green">#ff6cae19</color>
+
+    <color name="red">#ffff0000</color>
+    
+    <color name="transparent">#00000000</color>
+    <color name="semi_transparent">#30ffffff</color>
+    
+    
+    <color name="font_color_input">#ff505253</color>
+    <color name="font_color_title_sel">#c0a0a2a3</color>
+    <color name="edit_hint_color">#bebebe</color>
+    
+    <color name="separator">#c0c0c0</color>
+    <color name="border">#000000</color>
+	
+    <color name="topbar_back">#373737</color>
+    <color name="main_back">#515151</color>
+    <color name="home_back">#ffffff</color>
+    <color name="menu_back">#434343</color>   
+    <color name="background_page_title">#515151</color>
+    
+    <color name="font_color_title">#ff00ccff</color>
+    <color name="list_item_back_highlight">#1000ccff</color>
+
+    <color name="content_back">#13374a</color>
+    <color name="content_back2">#1d465c</color>
+    
+    <color name="tips_title_back">#6aab20</color>
+</resources>

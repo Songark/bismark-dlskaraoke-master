@@ -1,0 +1,70 @@
+<resources>
+
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+	
+    <dimen name="font_1">20.0sp</dimen>
+    <dimen name="font_2">19.0sp</dimen>
+    <dimen name="font_3">18.0sp</dimen>
+    <dimen name="font_4">17.0sp</dimen>
+    <dimen name="font_5">16.0sp</dimen>
+    <dimen name="font_6">15.0sp</dimen>
+    <dimen name="font_7">14.0sp</dimen>
+    <dimen name="font_8">12.0sp</dimen>
+    <dimen name="font_9">10.0sp</dimen>
+    <dimen name="padding_arround1">5.0dp</dimen>
+    <dimen name="padding_arround2">10.0dp</dimen>
+    <dimen name="padding_arround3">15.0dp</dimen>
+    <dimen name="padding_arround4">20.0dp</dimen>
+    <dimen name="padding_arround5">25.0dp</dimen>
+    <dimen name="padding_arround6">30.0dp</dimen>
+    <dimen name="padding_arround7">35.0dp</dimen>
+    <dimen name="height_nav_bar">70.0dp</dimen>
+    <dimen name="font_top_title">24.0sp</dimen>
+    <dimen name="main_menu_width">80.0dp</dimen>
+    <dimen name="main_menu_height">80.0dp</dimen>
+    <dimen name="top_menu_width">34.0dp</dimen>
+    <dimen name="top_menu_height">34.0dp</dimen>
+    <dimen name="height_search_bar">50.0dp</dimen>
+
+    <!-- Custom Segment -->
+    <dimen name="radio_button_conner_radius">5dp</dimen>
+    <dimen name="radio_button_stroke_border">1dp</dimen>
+	
+	<!-- Ring -->
+	<dimen name="drawable_ring_size">10dip</dimen>
+
+    <!-- Midi Panel -->
+    <!-- Secondaray Device -->
+    <dimen name="space_line">0.555dp</dimen>
+    <dimen name="space_xxxsmall">3.33dp</dimen>
+    <dimen name="space_small">11.1dp</dimen>
+    <dimen name="space_xsmall">16.65dp</dimen>
+    <dimen name="space_normal">22.2dp</dimen>
+    <dimen name="space_xnormal">31.08dp</dimen>
+    <dimen name="space_large">38.85dp</dimen>
+    <dimen name="space_xlarge">55.5dp</dimen>
+    <dimen name="space_xxlarge">77.7dp</dimen>
+    <dimen name="space_xxxlarge">166.5dp</dimen>
+    <dimen name="padding_large">22.2dp</dimen>
+    <dimen name="padding_normal">11.1dp</dimen>
+    <dimen name="padding_small">5.55dp</dimen>
+    <dimen name="padding_xsmall">2.22dp</dimen>
+    <dimen name="fontsize_normal">22.2dp</dimen>
+    <dimen name="fontsize_xnormal">25.53dp</dimen>
+    <dimen name="fontsize_xxnormal">18.00sp</dimen>
+    <dimen name="fontsize_large">33.3dp</dimen>
+    <dimen name="fontsize_xlarge">38.85dp</dimen>
+    <dimen name="fontsize_xxxlarge">88.8dp</dimen>
+    <dimen name="fontsize_small">16.65sp</dimen>
+    <dimen name="fontsize_xsmall">5.00sp</dimen>
+    <dimen name="fontsize_xxsmall">11.1dp</dimen>
+    <dimen name="fontsize_mark">88.8sp</dimen>
+    <dimen name="loading_size">33.3dp</dimen>
+    <dimen name="tick_size">35dp</dimen>
+    <dimen name="mark_width">53.28dp</dimen>
+    <dimen name="mark_height">86.58dp</dimen>
+    <dimen name="marktext_height">44.4dp</dimen>
+    <dimen name="fontsize_lyric">25.00sp</dimen>
+</resources>
