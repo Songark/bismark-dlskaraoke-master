@@ -127,12 +127,7 @@ public class KLyricsEnThread extends Thread {
 		downRects = new ArrayList<Rect>();
 	}
 
-	public void setCurrentIdx(int curIdx)
-	{
-		currentIdx = curIdx;
-	}
-
-	private void initUpTxt(Boolean bIsStart) {
+	public void initUpTxt(Boolean bIsStart) {
 		if(currentIdx >= lyricsCount) {
 			isAniEnd = true;
 			return;
@@ -142,10 +137,7 @@ public class KLyricsEnThread extends Thread {
 		new TextInitThread(strText, true, bIsStart).start();
 		upRectIdx = 0;
 	}
-	public void initUpTxt() {
-		initUpTxt(false);
-	}
-	private void initDownTxt(Boolean bIsStart) {
+	public void initDownTxt(Boolean bIsStart) {
 		if(currentIdx >= lyricsCount) {
 			isAniEnd = true;
 			return;
@@ -155,10 +147,7 @@ public class KLyricsEnThread extends Thread {
 		new TextInitThread(strText, false, bIsStart).start();
 		downRectIdx = 0;
 	}
-	public void initDownTxt() {
-		initDownTxt(false);
-	}
-	
+
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
@@ -211,9 +200,6 @@ public class KLyricsEnThread extends Thread {
 						}
 					}
 					upRectIdx++;
-					/*if(upRectIdx == 1 && !isInitedDownTxt) {
-						initDownTxt();
-					}*/
 				} else {
 					if(isInitingDownTxt || downRectIdx == downRects.size() || downRects.size() < 1) continue;
 					
@@ -237,9 +223,6 @@ public class KLyricsEnThread extends Thread {
 						}
 					}
 					downRectIdx++;
-					/*if(downRectIdx == 1 && !isInitedUpTxt) {
-						initUpTxt();
-					}*/
 				}
 			}
 		} catch(Exception e) {

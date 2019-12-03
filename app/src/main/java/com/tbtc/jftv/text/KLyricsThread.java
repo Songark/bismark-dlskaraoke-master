@@ -41,7 +41,8 @@ public class KLyricsThread extends Thread {
 	private ArrayList<Rect> downRects;
 	private int upRectIdx = 0;
 	private int downRectIdx = 0;
-	
+
+	public Boolean isProcessedMessage = false;
 	public Boolean isInitingUpTxt = false;
 	public Boolean isInitingDownTxt = false;
 	
@@ -150,166 +151,63 @@ public class KLyricsThread extends Thread {
 		downRects = new ArrayList<Rect>();
 	}	
 
-	public void setCurrentIdx()
-	{
-		currentIdx = 0;
-		upRects.clear();
-		downRects.clear();
-
-		isInitingUpTxt = false;
-		isInitedUpTxt = false;
-		isInitingDownTxt = false;
-		isInitedDownTxt = false;
-
-		Global.Debug("[KLyricsThread::setCurrentIdx] begin, currentIdx-" + currentIdx);
-		initUpTxtForSkip(true);
-		initDownTxtForSkip(true);
-
-		isAniUp = true;
-		isAniEnd = false;
-
-		int iInterludeLyricsIdx = MidiPlayer.getPlayer().getInterludeLyricsIndex(0);
-		int iInterludeLyricsIdx1 = MidiPlayer.getPlayer().getInterludeLyricsIndex(1);
-
-		int iOldUpIdx = 0;
-		int iOldDownIdx = 0;
-		try {
-			while(true) {
-				if(aniTimes.size() < 1 || charCounts.size() < 1) {
-					break;
-				}
-				aniTime = aniTimes.get(0);
-				aniTimes.remove(0);
-				charCount = charCounts.get(0);
-				charCounts.remove(0);
-
-				Rect rc;
-				if(isAniUp) {
-					if(isInitingUpTxt) {
-						continue;
-					}
-					iOldUpIdx = upRectIdx;
-					if(iOldUpIdx == 0 && !isInitedDownTxt && currentIdx != iInterludeLyricsIdx) {
-						initDownTxt();
-						if(mEnThread != null) mEnThread.initDownTxt();
-					}
-
-					upRectIdx += charCount - 1;
-					upRectIdx = upRectIdx >= upRects.size() ? upRects.size() - 1 : upRectIdx;
-
-					rc = upRects.get(upRectIdx);
-					m_upHandler.sendEmptyMessage(rc.right);
-
-					upRectIdx++;
-					if(upRectIdx == upRects.size()) {
-						if(isAniEnd) {
-							break;
-						}
-						isAniUp = false;
-						if(mEnThread != null) mEnThread.isAniUp = false;
-						isInitedUpTxt = false;
-					}
-				} else {
-					if(isInitingDownTxt) continue;
-
-					iOldDownIdx = downRectIdx;
-					if(iOldDownIdx == 0 && !isInitedUpTxt && currentIdx != iInterludeLyricsIdx) {
-						initUpTxt();
-						if(mEnThread != null) mEnThread.initUpTxt();
-					}
-
-					downRectIdx += charCount - 1;
-					downRectIdx = downRectIdx >= downRects.size() ? downRects.size() - 1 : downRectIdx;
-
-					rc = downRects.get(downRectIdx);
-					m_downHandler.sendEmptyMessage(rc.right);
-
-					downRectIdx++;
-					if(downRectIdx == downRects.size()) {
-						if(isAniEnd) {
-							break;
-						}
-						isAniUp = true;
-						if(mEnThread != null) mEnThread.isAniUp = true;
-						isInitedDownTxt = false;
-					}
-				}
-			}
-		} catch(Exception e) {
-			Global.Debug(">>>>>>>>>>>Lyrics Thread Error! ex=" + e.getMessage());
-			Global.Debug(">>> position=" + upRectIdx +  ", " + downRectIdx);
-			e.printStackTrace();
-		}
-		Global.Debug("[KLyricsThread::setCurrentIdx] end");
-	}
-
 	public void initUpDownTxt() {
 		if(isAniUp) {
 			initDownTxt(false);
-			if(mEnThread != null) mEnThread.initDownTxt();
+			if(mEnThread != null) mEnThread.initDownTxt(false);
 			isAniUp = false;
 		}
 		else {
 			initUpTxt(false);
-			if(mEnThread != null) mEnThread.initUpTxt();
+			if(mEnThread != null) mEnThread.initUpTxt(false);
 			isAniUp = true;
 		}
 	}
 
 	private void initUpTxt(Boolean bIsStart) {
-		//Global.Debug("lyrics thread init up...cur idx=" + currentIdx);
+		Global.Debug("lyrics thread init up...cur idx=" + currentIdx);
 		if(currentIdx >= lyricsCount) {
 			isAniEnd = true;
 			return;
 		}
 		String strText = lyrics.get(currentIdx);
 		currentIdx++;
-		new TextInitThread(strText, true, bIsStart).start();
-		upRectIdx = 0;
-	}
-
-	private void initUpTxtForSkip(Boolean bIsStart) {
-		//Global.Debug("lyrics thread init up...cur idx=" + currentIdx);
-		if(currentIdx >= lyricsCount) {
-			isAniEnd = true;
-			return;
+		isProcessedMessage = false;
+		TextInitThread txtInitThread = new TextInitThread(strText, true, bIsStart);
+		txtInitThread.start();
+		while (true) {
+			if (txtInitThread.isEnd && isProcessedMessage == true)
+				break;
+			try {
+				Thread.sleep(10);
+			}
+			catch (Exception ex) {
+			}
 		}
-		String strText = lyrics.get(currentIdx);
-		currentIdx++;
-		new TextInitThread(strText, true, bIsStart).execute();
 		upRectIdx = 0;
-	}
-
-	private void initUpTxt() {
-		initUpTxt(false);
 	}
 
 	private void initDownTxt(Boolean bIsStart) {
-		//Global.Debug("lyrics thread init down...cur idx=" + currentIdx);
+		Global.Debug("lyrics thread init down...cur idx=" + currentIdx);
 		if(currentIdx >= lyricsCount) {
 			isAniEnd = true;
 			return;
 		}
 		String strText = lyrics.get(currentIdx);
 		currentIdx++;
-		new TextInitThread(strText, false, bIsStart).start();
-		downRectIdx = 0;
-	}
-
-	private void initDownTxtForSkip(Boolean bIsStart) {
-		//Global.Debug("lyrics thread init down...cur idx=" + currentIdx);
-		if(currentIdx >= lyricsCount) {
-			isAniEnd = true;
-			return;
+		isProcessedMessage = false;
+		TextInitThread txtInitThread = new TextInitThread(strText, false, bIsStart);
+		txtInitThread.start();
+		while (true) {
+			if (txtInitThread.isEnd && isProcessedMessage == true)
+				break;
+			try {
+				Thread.sleep(10);
+			}
+			catch (Exception ex) {
+			}
 		}
-		String strText = lyrics.get(currentIdx);
-		currentIdx++;
-		new TextInitThread(strText, false, bIsStart).execute();
 		downRectIdx = 0;
-	}
-
-	private void initDownTxt() {
-		initDownTxt(false);
 	}
 
 	@Override
@@ -356,6 +254,7 @@ public class KLyricsThread extends Thread {
 						aniTimes.remove(0);
 						charCount = charCounts.get(0);
 						charCounts.remove(0);
+						Global.Debug("Removing count-" + aniTimes.size());
 					}
 					catch (Exception ex)
 					{
@@ -365,11 +264,15 @@ public class KLyricsThread extends Thread {
 
 					iOldUpIdx = upRectIdx;
 					if(iOldUpIdx == 0 && !isInitedDownTxt && currentIdx != iInterludeLyricsIdx) {
-						initDownTxt();
-						if(mEnThread != null) mEnThread.initDownTxt();
+						Global.Debug("Calling initDownTxt: count-" + aniTimes.size());
+						initDownTxt(false);
+						if(mEnThread != null) mEnThread.initDownTxt(false);
 					}
 
 					for (int iCharCount = 0; iCharCount < charCount; iCharCount++) {
+						if (upRectIdx >= upRects.size())
+							break;
+
 						rc = upRects.get(upRectIdx);
 						iWidth = rc.left + mSpaceStep;
 						int nSteps = rc.width() / mSpaceStep;
@@ -418,6 +321,7 @@ public class KLyricsThread extends Thread {
 						aniTimes.remove(0);
 						charCount = charCounts.get(0);
 						charCounts.remove(0);
+						Global.Debug("Removing count-" + aniTimes.size());
 					}
 					catch (Exception ex)
 					{
@@ -427,11 +331,14 @@ public class KLyricsThread extends Thread {
 
 					iOldDownIdx = downRectIdx;
 					if(iOldDownIdx == 0 && !isInitedUpTxt && currentIdx != iInterludeLyricsIdx) {
-						initUpTxt();
-						if(mEnThread != null) mEnThread.initUpTxt();
+						Global.Debug("Calling initUpTxt: count-" + aniTimes.size());
+						initUpTxt(false);
+						if(mEnThread != null) mEnThread.initUpTxt(false);
 					}
 
 					for (int iCharCount = 0; iCharCount < charCount; iCharCount++) {
+						if (downRectIdx >= downRects.size())
+							break;
 
 						rc = downRects.get(downRectIdx);
 						iWidth = rc.left + mSpaceStep;
@@ -490,91 +397,13 @@ public class KLyricsThread extends Thread {
 		
 	public class TextInitThread extends Thread {
 		String text;
-		Boolean isUp, isStart;
+		Boolean isUp, isStart, isEnd;
 		public TextInitThread(String strText, Boolean bisUp, Boolean bisStart) {
 			super();
 			text = strText;
 			isUp = bisUp;
 			isStart = bisStart;
-		}
-
-		public void execute() {
-			isInitingUpTxt = isUp;
-			isInitingDownTxt = !isUp;
-
-			if(isUp) {
-				upRects.clear();
-			} else {
-				downRects.clear();
-			}
-
-			int iWidth = getTextSize(text);
-			bmp = Bitmap.createBitmap(iWidth, txtHeight, Config.ARGB_8888);
-			bmpRed = Bitmap.createBitmap(iWidth, txtHeight, Config.ARGB_8888);
-			cvs.setBitmap(bmp);
-			cvsRed.setBitmap(bmpRed);
-
-			Rect rcTemp;
-			String strChar;
-			int x = fontsize / 8;
-			Rect bounds = new Rect();
-
-			if(mCurrentDraw == KTextLayout.DRAW_LEFT) {
-				for(int i = 0; i < text.length(); i++) {
-					strChar = text.substring(i, i + 1);
-					if(strChar.equals(" ")) {
-						x += mSpaceWord;
-						continue;
-					}
-
-					paint.getTextBounds(strChar, 0, strChar.length(), bounds);
-					cvs.drawText(strChar, x, fontsize, paintStroke);
-					cvs.drawText(strChar, x, fontsize, paint);
-
-					cvsRed.drawText(strChar, x, fontsize, paintRedStroke);
-					cvsRed.drawText(strChar, x, fontsize, paintRed);
-
-					rcTemp = new Rect(x, 0, x + bounds.width() + fontsize / 4, 0);
-					if(isUp)
-						upRects.add(rcTemp);
-					else
-						downRects.add(rcTemp);
-
-					x += bounds.width() + fontsize / 4;
-				}
-			} else {
-				int iCharWidth = 0;
-				for(int i = text.length() - 1; i >= 0; i--) {
-					strChar = text.substring(i, i + 1);
-					if(strChar.equals(" ")) {
-						x += mSpaceWord;
-						continue;
-					}
-
-					paint.getTextBounds(strChar, 0, strChar.length(), bounds);
-					iCharWidth = bounds.width() + fontsize / 4;
-
-					cvs.drawText(strChar, iWidth - x - iCharWidth, fontsize, paintStroke);
-					cvs.drawText(strChar, iWidth - x - iCharWidth, fontsize, paint);
-
-					cvsRed.drawText(strChar, iWidth - x - iCharWidth, fontsize, paintRedStroke);
-					cvsRed.drawText(strChar, iWidth - x - iCharWidth, fontsize, paintRed);
-
-					rcTemp = new Rect(x, 0, x + iCharWidth, 0);
-					if(isUp)
-						upRects.add(rcTemp);
-					else
-						downRects.add(rcTemp);
-
-					x += iCharWidth;
-				}
-			}
-
-			if(isUp) {
-				textUpInitHandler.handleMessage(null);
-			} else {
-				textDownInitHandler.handleMessage(null);
-			}
+			isEnd = false;
 		}
 
 		@Override
@@ -627,11 +456,9 @@ public class KLyricsThread extends Thread {
 					rcTemp = new Rect(x, 0, x + bounds.width() + fontsize / 4, 0);
 					if(isUp) {
 						upRects.add(rcTemp);
-						// Global.Debug("[TextInitThread::run] upRects added - " + upRects.size());
 					}
 					else {
 						downRects.add(rcTemp);
-						// Global.Debug("[TextInitThread::run] downRects added - " + downRects.size());
 					}
 					
 					x += bounds.width() + fontsize / 4;
@@ -663,12 +490,15 @@ public class KLyricsThread extends Thread {
 					x += iCharWidth;
 				}
 			}
-			
+
 			if(isUp) {
 				textUpInitHandler.sendEmptyMessage(0);
 			} else {
 				textDownInitHandler.sendEmptyMessage(0);
 			}
+
+			Global.Debug("TextInitThread exit text-" + text);
+			isEnd = true;
 		}
 	}
 	

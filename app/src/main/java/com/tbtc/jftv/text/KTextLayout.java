@@ -284,26 +284,6 @@ public class KTextLayout extends LinearLayout {
 		}
 	}
 
-	public void setCurrentIdx()
-	{
-		Global.Debug("\tSet Lyrics Character Index in TextThreads");
-		if (m_lThread != null) {
-			m_lThread.setCurrentIdx();
-		}
-	}
-
-	private Thread pSeekThread;
-	private Runnable pSeekThreadRunnable = new Runnable() {
-		@Override
-		public void run() {
-			Global.Debug("[pSeekThreadRunnable::run] begin");
-			if (m_lThread != null) {
-				m_lThread.setCurrentIdx();
-			}
-			Global.Debug("[pSeekThreadRunnable::run] end");
-		}
-	};
-
 	private Handler textUpInitHandler = new Handler() {
 
 		@Override
@@ -315,7 +295,7 @@ public class KTextLayout extends LinearLayout {
 			
 			m_lThread.isInitingUpTxt = false;
 			m_lThread.isInitedUpTxt = true;
-
+			m_lThread.isProcessedMessage = true;
 			// Global.Debug("[KTextLayout::textUpInitHandler] isInitingUpTxt = false, isInitedUpTxt = true");
 			setImagViewWidth(imgUpTxtRed, 0);
 		}		
@@ -332,6 +312,8 @@ public class KTextLayout extends LinearLayout {
 			
 			m_lThread.isInitingDownTxt = false;
 			m_lThread.isInitedDownTxt = true;
+			m_lThread.isProcessedMessage = true;
+
 			// Global.Debug("[KTextLayout::textDownInitHandler] isInitingDownTxt = false, isInitedDownTxt = true");
 			setImagViewWidth(imgDownTxtRed, 0);
 		}		

@@ -9,6 +9,8 @@ import com.sheetmusic.MidiPlayer;
 
 import jp.bismark.bssynth.sample.MainActivity;
 
+import static com.sheetmusic.MidiPlayer.PLAYER_PLAYING;
+
 public class KTextThread extends Thread {
 	public void setDeltaTime(double fTime) {
 		Global.Debug("KTextThread::setDeltaTime --> time = " + fTime + ", cur time=" + curMSec + " msec, cur tick=" + curTick);
@@ -28,7 +30,8 @@ public class KTextThread extends Thread {
 	private int interludeStartTick1;
 	private int interludeEndTick1;
 	private int interludeStatus; // 0: Not started, 1: playing, 2: ended
-	
+	public boolean bIsSkip;
+
 	private static final int INTERLUDE_NOTSTARTED = 0;
 	private static final int INTERLUDE_PLAYING = 1;
 	private static final int INTERLUDE_ENDED = 2;
@@ -46,7 +49,7 @@ public class KTextThread extends Thread {
 		events = arrEvent;
 		eventSize = events.size();			
 	}
-	public void setInfo(int iReadyLyricsTick, int iInterludeStart, int iInterludeEnd, int iInterludeStart1, int iInterludeEnd1) {
+	public void setInfo(int iReadyLyricsTick, int iInterludeStart, int iInterludeEnd, int iInterludeStart1, int iInterludeEnd1, boolean isSkip) {
 		readyLyricsTick = iReadyLyricsTick;
 		interludeStartTick = iInterludeStart;
 		interludeEndTick = iInterludeEnd;
@@ -55,6 +58,7 @@ public class KTextThread extends Thread {
 		if(interludeStartTick < 0 || interludeEndTick < 0) {
 			interludeStatus = INTERLUDE_ENDED1;
 		}
+		bIsSkip = isSkip;
 	}
 	
 	private Boolean isLoop;
@@ -105,7 +109,7 @@ public class KTextThread extends Thread {
 	public void run() {
 		// TODO Auto-generated method stub
 		MidiEvent event;
-		Boolean bIsEnd = false, bIsSkip = true;
+		Boolean bIsEnd = false;
 		Global.Debug("KTextThread Begin");
 		while (isLoop) {
 			try {
@@ -235,7 +239,8 @@ public class KTextThread extends Thread {
 					fTxtTime *= dblTempo;
 				}
 			}
-			// Global.Debug("[KTextThread::sendMidiEvent] fTxtTime-" + fTxtTime + ", eventStarttime-" + curEvent.StartTime);
+			Global.Debug("[KTextThread::sendMidiEvent] fTxtTime-" + fTxtTime + ", eventStarttime-" + curEvent.StartTime +
+					", count-" + MidiPlayer.getPlayer().getLengthOfAnimChars());
 			MidiPlayer.getPlayer().nextChar(fTxtTime);
 		}
 	}

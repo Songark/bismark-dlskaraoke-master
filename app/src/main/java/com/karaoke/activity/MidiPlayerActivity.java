@@ -64,6 +64,7 @@ import java.util.zip.CRC32;
 import jp.bismark.bssynth.sample.MainActivity;
 
 import static com.sheetmusic.MidiPlayer.PLAYER_PLAYING;
+import static com.sheetmusic.MidiPlayer.PLAYER_SKIPPING;
 
 public class MidiPlayerActivity extends BaseActivity implements MidiPlayer.OnMidiPlayListener {
 
@@ -267,7 +268,6 @@ public class MidiPlayerActivity extends BaseActivity implements MidiPlayer.OnMid
                     e.printStackTrace();
                 }
                 MidiPlayer.getPlayer().play(curSongInfo.getLanguage());
-                // MidiPlayer.getPlayer().seekByTicks(1393 * 5);
             }
         });
 
@@ -322,8 +322,7 @@ public class MidiPlayerActivity extends BaseActivity implements MidiPlayer.OnMid
             }
 
             public void onStopTrackingTouch(SeekBar seekBar) {
-                changePlay(PLAY_NONE);
-                MidiPlayer.getPlayer().seekByTicks(progressChangedValue);
+                seekByScroll(progressChangedValue);
             }
         });
 
@@ -341,6 +340,34 @@ public class MidiPlayerActivity extends BaseActivity implements MidiPlayer.OnMid
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    private Thread mWaitSkipThread;
+    private Runnable mWaitSkipRunnable = new Runnable() {
+        @Override
+        public void run() {
+            try {
+                Thread.sleep(200);
+                while ( MidiPlayer.getPlayer().getTextThread().bIsSkip == true ||
+                        MidiPlayer.getPlayer().getLengthOfAnimChars() > 0) {
+                    Thread.sleep(10);
+                }
+            } catch (Exception ex) {
+
+            }
+            MainActivity.getPlayer().Start();
+            MidiPlayer.getPlayer().setPlayState(PLAYER_PLAYING);
+            mLyricsHandler.sendEmptyMessage(4);
+        }
+    };
+
+    private void seekByScroll(int scrollTicks)
+    {
+        changePlay(PLAY_NONE);
+        MidiPlayer.getPlayer().seekByTicks(scrollTicks);
+
+        mWaitSkipThread = new Thread(mWaitSkipRunnable);
+        mWaitSkipThread.start();
     }
 
     public void playSong() throws InterruptedException {
@@ -1003,6 +1030,10 @@ public class MidiPlayerActivity extends BaseActivity implements MidiPlayer.OnMid
     }
 
     public void changePlay(int iType) {
+        if (MidiPlayer.getPlayer().getPlayState() == PLAYER_SKIPPING) {
+            return;
+        }
+
         if (iType == PLAY_SONGINFO) {
             Global.Debug("changePlay: PLAY_SONGINFO");
             mLnLyrics.setVisibility(View.INVISIBLE);
