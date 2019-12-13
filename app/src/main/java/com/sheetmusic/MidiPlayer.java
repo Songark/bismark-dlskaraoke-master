@@ -49,7 +49,6 @@ public class MidiPlayer {
 	}
 	
 	private int playState = PLAYER_READY;
-
 	public int getPlayState() {
 		return playState;
 	}
@@ -58,7 +57,7 @@ public class MidiPlayer {
 	}
 
 	public MidiFile m_midifile = null;          /* The midi file to play */
-	private int mCurVolume;
+	public int skippingTicks = 0;
 	private int mFadeoutTime;
 	private double mDeltaTime = 0;
 	private Context mContext = null;
@@ -162,7 +161,7 @@ public class MidiPlayer {
 	private ArrayList<MidiTrack> tracks = null;
 	private MidiTrack melody = null;
 	private MidiTrack lyrics = null;
-	private int tickdelay = 0;
+	private int tickdelay[] = new int[3];
 	private int division = 0;
 	private int measure = 0;
 	private double tempo = 1;
@@ -218,7 +217,7 @@ public class MidiPlayer {
 				}
 			}
 			readyLyricsTick = iSum - division * 4;		// 전주 카운터시작위치
-			tickdelay = division;
+			tickdelay[0] = division;
 
 			// 간주 시작/끝 시점 찾기, 매 글자 이벤트에서 글자 개수 얻기
 			int iLyricsIdx = 0;
@@ -264,10 +263,12 @@ public class MidiPlayer {
 							if (interludeStartTick == -1) {
 								interludeStartTick = _lyrics.get(i - 2).StartTime + division * 4;	// 간주 시작위치
 								interludeEndTick = _lyrics.get(i - 1).StartTime - division * 4;		// 간주 카운터시작위치
+								tickdelay[1] = division;
 							}
 							else if (interludeStartTick1 == -1) {
 								interludeStartTick1 = _lyrics.get(i - 2).StartTime + division * 4;	// 간주 시작위치
 								interludeEndTick1 = _lyrics.get(i - 1).StartTime - division * 4;	// 간주 카운터시작위치
+								tickdelay[2] = division;
 							}
 						}
 
@@ -358,7 +359,7 @@ public class MidiPlayer {
 				i++;
 				if (Global.isLyricsStartEvent(event)) {
 					readyLyricsTick = iSum;		// 전주 카운터시작위치
-					tickdelay = (events.get(i).StartTime - readyLyricsTick) / 4;
+					tickdelay[0] = (events.get(i).StartTime - readyLyricsTick) / 4;
 					break;
 				}
 			}
@@ -404,10 +405,24 @@ public class MidiPlayer {
 					if (interludeStartTick == -1) {
 						interludeStartTick = iSum + division * 4;
 						interludeEndTick = events.get(i).StartTime;
+						if (i < iEventSize - 1)
+							tickdelay[1] = (events.get(i + 1).StartTime - interludeEndTick) / 4;
+
+						if (interludeStartTick > interludeEndTick) {
+                            interludeStartTick = -1;
+                            interludeEndTick = -1;
+                        }
 					}
 					else if (interludeStartTick1 == -1) {
 						interludeStartTick1 = iSum + division * 4;
 						interludeEndTick1 = events.get(i).StartTime;
+						if (i < iEventSize - 1)
+							tickdelay[2] = (events.get(i + 1).StartTime - interludeEndTick1) / 4;
+
+						if (interludeStartTick1 > interludeEndTick1) {
+							interludeStartTick1 = -1;
+							interludeEndTick1 = -1;
+						}
 					}
 				}
 
@@ -532,8 +547,20 @@ public class MidiPlayer {
 		return division;
 	}
 
-	public int getTickDelay() {
-		return tickdelay;
+	public int getTickDelay(int nticks) {
+		int result = tickdelay[0];
+		if (nticks >= readyLyricsTick && (interludeStartTick == -1 || nticks < interludeStartTick))
+			result = tickdelay[0];
+		else if (interludeStartTick != -1) {
+			if (nticks >= interludeStartTick && (interludeStartTick1 == -1 || nticks < interludeStartTick1))
+				result = tickdelay[1];
+			else if (interludeStartTick1 != -1) {
+				if (nticks >= interludeStartTick1)
+					result = tickdelay[2];
+			}
+		}
+
+		return result;
 	}
 
 	public int getMeasure() {
@@ -612,8 +639,10 @@ public class MidiPlayer {
 	public void seekByTicks(int ticks)
 	{
 		Global.Debug("[MidiPlayer::seekByTicks] begin");
+		playState = PLAYER_SKIPPING;
 		stop();
-		MainActivity.getPlayer().Seek(ticks / 5);
+		skippingTicks = ticks;
+		MainActivity.getPlayer().Seek(skippingTicks / 5);
 		skipPlay(_iLang);
 		Global.Debug("[MidiPlayer::seekByTicks] end");
 	}
@@ -752,6 +781,7 @@ public class MidiPlayer {
 
 	public void playInterlude() {
 		mParent.onPlayInterlude();
+		changeLyricLine();
 	}
 
 	public void endInterlude() {
@@ -788,23 +818,14 @@ public class MidiPlayer {
 	private int _iLang = 0;
 	public int skipPlay(int iLang) {
 		int iRet = 1;
-		try {
-			Thread.sleep(100);
-		} catch (Exception ex) {
-
-		}
 		Global.Debug("[MidiPlayer::skipPlay] begin");
 
-		playState = PLAYER_SKIPPING;
-		long lStartTime = System.currentTimeMillis();
 		kTxtThread = new KTextThread();
 		if (lyrics != null) {
 			if (curSongInfo.songType == SongInfo.TYPE_MAGICSING)
 				kTxtThread.setEvents(lyrics.getLyrics());
 			else if (curSongInfo.songType == SongInfo.TYPE_KUMYONG)
 				kTxtThread.setEvents(lyrics.getEvents());
-			Global.Debug(String.format("[Lyrics Info]: tickDelay-%d, readyLyricsTick-%d, interludeStartTick-%d, interludeEndTick-%d",
-					tickdelay, readyLyricsTick, interludeStartTick, interludeEndTick));
 			kTxtThread.setInfo(readyLyricsTick, interludeStartTick, interludeEndTick, interludeStartTick1, interludeEndTick1, true);
 		}
 		kTxtThread.setLoop(true);
@@ -830,6 +851,7 @@ public class MidiPlayer {
 			return resume();
 		}
 
+		skippingTicks = 0;
 		MainActivity.getPlayer().Start();
 		long lStartTime = System.currentTimeMillis();
 		kTxtThread = new KTextThread();
@@ -838,8 +860,13 @@ public class MidiPlayer {
 				kTxtThread.setEvents(lyrics.getLyrics());
 			else if (curSongInfo.songType == SongInfo.TYPE_KUMYONG)
 				kTxtThread.setEvents(lyrics.getEvents());
-			Global.Debug(String.format("[Lyrics Info]: tickDelay-%d, readyLyricsTick-%d, interludeStartTick-%d, interludeEndTick-%d",
-					tickdelay, readyLyricsTick, interludeStartTick, interludeEndTick));
+			Global.Debug(String.format("[Lyrics Info]: tickDelay-%d, readyLyricsTick-%d",
+					tickdelay[0], readyLyricsTick));
+			Global.Debug(String.format("[Lyrics Info]: tickDelay-%d, interludeStartTick-%d, interludeEndTick-%d",
+					tickdelay[1], interludeStartTick, interludeEndTick));
+			Global.Debug(String.format("[Lyrics Info]: tickDelay-%d, interludeStartTick1-%d, interludeEndTick1-%d",
+					tickdelay[2], interludeStartTick1, interludeEndTick1));
+
 			kTxtThread.setInfo(readyLyricsTick, interludeStartTick, interludeEndTick, interludeStartTick1, interludeEndTick1, false);
 		}
 		kTxtThread.setLoop(true);
@@ -883,7 +910,7 @@ public class MidiPlayer {
 	public int stop() {
 		int result = -1;
 
-		if (IsPlaying())
+		if (IsPlaying() && playState != PLAYER_SKIPPING)
 			MainActivity.getPlayer().Stop();
 
 		for (int i = 0; i < mp3Players.size(); i++) {
@@ -897,14 +924,25 @@ public class MidiPlayer {
 				setLyricCharIdx(0);
 				if (kTxtThread != null) {
 					kTxtThread.setLoop(false);
-					Thread.sleep(200);
+					Thread.sleep(100);
 					kTxtThread.interrupt();
 					kTxtThread = null;
 				}
 				result = 1;
 			}
-			while (IsPlaying()) {
-				Thread.sleep(50);
+			else if (playState == PLAYER_SKIPPING) {
+				kTxtLayout.stop();
+				setLyricCharIdx(0);
+				if (kTxtThread != null) {
+					kTxtThread.setLoop(false);
+					Thread.sleep(100);
+					kTxtThread.interrupt();
+					kTxtThread = null;
+				}
+				result = 1;
+			}
+			while (IsPlaying() && playState != PLAYER_SKIPPING) {
+				Thread.sleep(1);
 			}
 		} catch(InterruptedException e){
 			e.printStackTrace();
@@ -918,6 +956,13 @@ public class MidiPlayer {
 			mLyricsCharIdx++;
 		} catch (Exception e) {
 			kTxtLayout.nextChar(fTime, 1);
+		}
+	}
+
+	public void changeLyricLine() {
+		try {
+			kTxtLayout.nextChar(-1, -1);
+		} catch (Exception e) {
 		}
 	}
 

@@ -7,6 +7,8 @@ import com.tbtc.jftv.common.Global;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Matrix;
+import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.os.Handler;
 import android.os.Message;
@@ -271,19 +273,6 @@ public class KTextLayout extends LinearLayout {
 		}
 	}
 
-	public void resetThreadChars()
-	{
-		if(m_lThreadEn != null) {
-			m_lThreadEn.aniTimes.clear();
-			m_lThreadEn.charCounts.clear();
-		}
-
-		if (m_lThread != null) {
-			m_lThread.aniTimes.clear();
-			m_lThread.charCounts.clear();
-		}
-	}
-
 	private Handler textUpInitHandler = new Handler() {
 
 		@Override
@@ -295,8 +284,12 @@ public class KTextLayout extends LinearLayout {
 			
 			m_lThread.isInitingUpTxt = false;
 			m_lThread.isInitedUpTxt = true;
-			m_lThread.isProcessedMessage = true;
-			// Global.Debug("[KTextLayout::textUpInitHandler] isInitingUpTxt = false, isInitedUpTxt = true");
+			m_lThread.isProcessedUpMsg = true;
+			int maxWidth = Math.max(imgUpTxt.getWidth(), imgDownTxt.getWidth());
+			Global.Debug("[KTextLayout::textUpInitHandler] maxWidth-" + maxWidth + ", parentWidth-" + getWidth());
+			if (maxWidth > getWidth() - 10) {
+
+			}
 			setImagViewWidth(imgUpTxtRed, 0);
 		}		
 	};
@@ -312,9 +305,13 @@ public class KTextLayout extends LinearLayout {
 			
 			m_lThread.isInitingDownTxt = false;
 			m_lThread.isInitedDownTxt = true;
-			m_lThread.isProcessedMessage = true;
+			m_lThread.isProcessedDownMsg = true;
 
-			// Global.Debug("[KTextLayout::textDownInitHandler] isInitingDownTxt = false, isInitedDownTxt = true");
+			int maxWidth = Math.max(imgUpTxt.getWidth(), imgDownTxt.getWidth());
+			Global.Debug("[KTextLayout::textDownInitHandler] maxWidth-" + maxWidth + ", parentWidth-" + getWidth());
+			if (maxWidth > getWidth() - 10) {
+
+			}
 			setImagViewWidth(imgDownTxtRed, 0);
 		}		
 	};

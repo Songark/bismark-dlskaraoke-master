@@ -13,8 +13,10 @@ public class MyApplication extends Application {
 	Typeface quicksandLightFont;
 	Typeface quicksandBoldFont;
 
-	Typeface latoReguarFont;
-	Typeface simheiFont;
+	Typeface mainFont_Kr;
+	Typeface mainFont_Cn;
+	Typeface layoutFont_Kr;
+	Typeface layoutFont_Cn;
 	
 	@Override
 	public void onCreate() {
@@ -43,24 +45,39 @@ public class MyApplication extends Application {
 	// Bold Font
 	public Typeface getQuicksandBoldFont() {
 		if (quicksandBoldFont == null) {
-			quicksandBoldFont = Typeface.createFromAsset(getAssets(), "fonts/Quicksand-Bold.ttf");
+			quicksandBoldFont = Typeface.createFromAsset(getAssets(), "fonts/NanumGothicExtraBold.ttf");
 		}
 		return quicksandBoldFont;
 	}
 	
 	// Bold Font
-	public Typeface getLatoRegularFont() {
-		if (latoReguarFont == null) {
-			latoReguarFont = Typeface.createFromAsset(getAssets(), "fonts/Lato-Regular.ttf");
+	public Typeface getMainFont_Kr() {
+		if (mainFont_Kr == null) {
+			mainFont_Kr = Typeface.createFromAsset(getAssets(), "fonts/NanumGothicExtraBold.ttf");
 		}
-		return latoReguarFont;
+		return mainFont_Kr;
 	}
 
-	// Simhei Font
-	public Typeface getSimheiFont() {
-		if (simheiFont == null) {
-			simheiFont = Typeface.createFromAsset(getAssets(), "fonts/simhei.ttf");
+	public Typeface getMainFont_Cn() {
+		if (mainFont_Cn == null) {
+			mainFont_Cn = Typeface.createFromAsset(getAssets(), "fonts/simhei.ttf");
 		}
-		return simheiFont;
+		return mainFont_Cn;
+	}
+
+
+	// Text Layout Font
+	public Typeface getLayoutFont_Kr() {
+		if (layoutFont_Kr == null) {
+			layoutFont_Kr = Typeface.createFromAsset(getAssets(), "fonts/NanumGothicBold.ttf");
+		}
+		return layoutFont_Kr;
+	}
+
+	public Typeface getLayoutFont_Cn() {
+		if (layoutFont_Cn == null) {
+			layoutFont_Cn = Typeface.createFromAsset(getAssets(), "fonts/simhei.ttf");
+		}
+		return layoutFont_Cn;
 	}
 }

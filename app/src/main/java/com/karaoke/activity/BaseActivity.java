@@ -292,13 +292,21 @@ public class BaseActivity extends FragmentActivity {
 	}
 
 	// Lato Font
-	public Typeface getLatoRegularFont() {
-		return myApp.getLatoRegularFont();
+	public Typeface getMainFont_Kr() {
+		return myApp.getMainFont_Kr();
+	}
+
+	public Typeface getMainFont_Cn() {
+		return myApp.getMainFont_Cn();
 	}
 
 	// Mdcn Font
-	public Typeface getSimheiFont() {
-		return myApp.getSimheiFont();
+	public Typeface getLayoutFont_Kr() {
+		return myApp.getLayoutFont_Kr();
+	}
+
+	public Typeface getLayoutFont_Cn() {
+		return myApp.getLayoutFont_Cn();
 	}
 
 	protected void onBannerClicked() {

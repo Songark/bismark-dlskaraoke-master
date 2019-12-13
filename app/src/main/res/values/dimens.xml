@@ -39,7 +39,7 @@
     <!-- Secondaray Device -->
     <dimen name="space_line">0.555dp</dimen>
     <dimen name="space_xxxsmall">3.33dp</dimen>
-    <dimen name="space_small">11.1dp</dimen>
+    <dimen name="space_small">9.0dp</dimen>
     <dimen name="space_xsmall">16.65dp</dimen>
     <dimen name="space_normal">22.2dp</dimen>
     <dimen name="space_xnormal">31.08dp</dimen>
@@ -66,5 +66,5 @@
     <dimen name="mark_width">53.28dp</dimen>
     <dimen name="mark_height">86.58dp</dimen>
     <dimen name="marktext_height">44.4dp</dimen>
-    <dimen name="fontsize_lyric">25.00sp</dimen>
+    <dimen name="fontsize_lyric">24.00sp</dimen>
 </resources>

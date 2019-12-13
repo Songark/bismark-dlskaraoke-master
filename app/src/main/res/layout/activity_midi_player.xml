@@ -121,7 +121,6 @@
                 tools:visibility="visible">
 
                 <LinearLayout
-                    android:id="@+id/lnSongInfo"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@null"
@@ -129,6 +128,7 @@
                     android:visibility="visible">
 
                     <LinearLayout
+                        android:id="@+id/lnTitleInfo"
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
                         android:layout_weight="35"
@@ -236,6 +236,7 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/lnSongInfo"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@null"

@@ -30,7 +30,7 @@ public class KTextThread extends Thread {
 	private int interludeStartTick1;
 	private int interludeEndTick1;
 	private int interludeStatus; // 0: Not started, 1: playing, 2: ended
-	public boolean bIsSkip;
+	public Boolean bIsSkip;
 
 	private static final int INTERLUDE_NOTSTARTED = 0;
 	private static final int INTERLUDE_PLAYING = 1;
@@ -110,7 +110,10 @@ public class KTextThread extends Thread {
 		// TODO Auto-generated method stub
 		MidiEvent event;
 		Boolean bIsEnd = false;
+		int skippingTicks = MidiPlayer.getPlayer().skippingTicks;
 		Global.Debug("KTextThread Begin");
+
+
 		while (isLoop) {
 			try {
 				curTick = MidiPlayer.getPlayer().getCurrentTicks();
@@ -120,30 +123,8 @@ public class KTextThread extends Thread {
 					continue;
 				}
 
-				// Check Interlude Status
-				if(interludeStatus == INTERLUDE_NOTSTARTED && curTick >= interludeStartTick) {
-					interludeStatus = INTERLUDE_PLAYING;
-					Global.Debug("Interlude start! ------------------");
-					MidiPlayer.getPlayer().playInterlude();
-				}
-				if(interludeStatus == INTERLUDE_PLAYING && curTick >= interludeEndTick - 480) {
-					interludeStatus = INTERLUDE_ENDED;
-					Global.Debug("Interlude end! ------------------");
-					MidiPlayer.getPlayer().endInterlude();
-				}
-				if(interludeStatus == INTERLUDE_ENDED && curTick >= interludeStartTick1 && interludeStartTick1 > 0) {
-					interludeStatus = INTERLUDE_PLAYING1;
-					Global.Debug("Interlude start again! ------------------");
-					MidiPlayer.getPlayer().playInterlude();
-				}
-				if(interludeStatus == INTERLUDE_PLAYING1 && curTick >= interludeEndTick1 - 480 && interludeEndTick1 > 0) {
-					interludeStatus = INTERLUDE_ENDED1;
-					Global.Debug("Interlude end again! ------------------");
-					MidiPlayer.getPlayer().endInterlude();
-				}
-
-				int tickdelay = MidiPlayer.getPlayer().getTickDelay();
-				processMarksCount(tickdelay);
+				if (curTick > skippingTicks)
+					processInterludes(curTick);
 
 				// Process Lyric Sync Information
 				for(;;) {
@@ -151,12 +132,23 @@ public class KTextThread extends Thread {
 						bIsEnd = true;
 						break;
 					}
+
+					if (!isLoop)
+						break;
+
 					event = events.get(currentIdx);
 					if (Global.isLyricsEvent(event)) {
 						if(event.StartTime >= curTick) {
 							break;
 						}
-						sendMidiEvent(event, (currentIdx < eventSize - 1) ? events.get(currentIdx + 1) : null, bIsSkip);
+						if (bIsSkip && event.StartTime < skippingTicks) {
+							processInterludes(event.StartTime);
+							sendMidiEvent(event, (currentIdx < eventSize - 1) ? events.get(currentIdx + 1) : null, true);
+						}
+						else {
+							sendMidiEvent(event, (currentIdx < eventSize - 1) ? events.get(currentIdx + 1) : null, false);
+							bIsSkip = false;
+						}
 					}
 					currentIdx++;
 				}
@@ -171,14 +163,38 @@ public class KTextThread extends Thread {
 			} catch(Exception e) {
 				e.printStackTrace();
 			}
-
-			bIsSkip = false;
 		}
 		Global.Debug("KTextThread End: isLoop-" + isLoop + ", currentIdx-" + currentIdx + ", eventSize-" + eventSize);
 	}
 
-	private void processMarksCount(int tickdelay)
+	private void processInterludes(int curTick)
 	{
+		int tickdelay = MidiPlayer.getPlayer().getTickDelay(curTick);
+
+		// Check Interlude Status
+		if(interludeStatus == INTERLUDE_NOTSTARTED && curTick >= interludeStartTick) {
+		interludeStatus = INTERLUDE_PLAYING;
+		Global.Debug("Interlude start! ------------------");
+		MidiPlayer.getPlayer().playInterlude();
+	}
+		if(interludeStatus == INTERLUDE_PLAYING && curTick >= interludeEndTick - 480) {
+			interludeStatus = INTERLUDE_ENDED;
+			Global.Debug("Interlude end! ------------------");
+			MidiPlayer.getPlayer().endInterlude();
+			markTickCount = 9;
+		}
+		if(interludeStatus == INTERLUDE_ENDED && curTick >= interludeStartTick1 && interludeStartTick1 > 0) {
+			interludeStatus = INTERLUDE_PLAYING1;
+			Global.Debug("Interlude start again! ------------------");
+			MidiPlayer.getPlayer().playInterlude();
+		}
+		if(interludeStatus == INTERLUDE_PLAYING1 && curTick >= interludeEndTick1 - 480 && interludeEndTick1 > 0) {
+			interludeStatus = INTERLUDE_ENDED1;
+			Global.Debug("Interlude end again! ------------------");
+			MidiPlayer.getPlayer().endInterlude();
+			markTickCount = 14;
+		}
+
 		if(markTickCount >= 0) {
 			if(markTickCount == 4 && curTick >= readyLyricsTick) {
 				MidiPlayer.getPlayer().playLyrics();
@@ -213,6 +229,25 @@ public class KTextThread extends Thread {
 				markTickCount--;
 			} else if(markTickCount == 5 && curTick >= interludeEndTick + tickdelay * 4 * MidiPlayer.getPlayer().getTempo()) {
 				MidiPlayer.getPlayer().playTick();
+				markTickCount = 14;
+			}
+		}
+
+		if(markTickCount >= 10) {
+			if(markTickCount == 14 && curTick >= interludeEndTick1) {
+				MidiPlayer.getPlayer().playLyrics();
+				markTickCount--;
+			} else if(markTickCount == 13 && curTick >= interludeEndTick1 + tickdelay * 1 * MidiPlayer.getPlayer().getTempo()) {
+				MidiPlayer.getPlayer().playTick();
+				markTickCount--;
+			} else if(markTickCount == 12 && curTick >= interludeEndTick1 + tickdelay * 2 * MidiPlayer.getPlayer().getTempo()) {
+				MidiPlayer.getPlayer().playTick();
+				markTickCount--;
+			} else if(markTickCount == 11 && curTick >= interludeEndTick1 + tickdelay * 3 * MidiPlayer.getPlayer().getTempo()) {
+				MidiPlayer.getPlayer().playTick();
+				markTickCount--;
+			} else if(markTickCount == 10 && curTick >= interludeEndTick1 + tickdelay * 4 * MidiPlayer.getPlayer().getTempo()) {
+				MidiPlayer.getPlayer().playTick();
 				markTickCount = -1;
 			}
 		}
@@ -245,54 +280,4 @@ public class KTextThread extends Thread {
 		}
 	}
 
-	public void setCurrentTicks(int nTicks) {
-		// Check Interlude Status
-		if(nTicks < readyLyricsTick) {
-			Global.Debug("[KTextThread::setCurrentTicks] ReadyLyricsTick");
-		}
-		if(nTicks >= interludeStartTick && nTicks < interludeEndTick - 480) {
-			interludeStatus = INTERLUDE_PLAYING;
-			Global.Debug("[KTextThread::setCurrentTicks] Interlude Showing...");
-			MidiPlayer.getPlayer().playInterlude();
-		}
-		if(nTicks >= interludeEndTick - 480) {
-			interludeStatus = INTERLUDE_ENDED;
-			Global.Debug("[KTextThread::setCurrentTicks] Interlude Ending...");
-			MidiPlayer.getPlayer().endInterlude();
-		}
-
-		if (interludeStartTick1 > 0 && interludeEndTick1 > 0) {
-			if(nTicks >= interludeStartTick1 && nTicks < interludeEndTick1 - 480) {
-				interludeStatus = INTERLUDE_PLAYING1;
-				Global.Debug("[KTextThread::setCurrentTicks] Interlude 1 Showing...");
-				MidiPlayer.getPlayer().playInterlude();
-			}
-			if(nTicks >= interludeEndTick1 - 480) {
-				interludeStatus = INTERLUDE_ENDED1;
-				Global.Debug("[KTextThread::setCurrentTicks] Interlude 1 Ending...");
-				MidiPlayer.getPlayer().endInterlude();
-			}
-		}
-
-		int tickdelay = MidiPlayer.getPlayer().getTickDelay();
-		processMarksCount(tickdelay);
-
-		// Process Lyric Sync Information
-		currentIdx = 0;
-		for(;;) {
-			if(currentIdx >= eventSize)  {
-				break;
-			}
-			MidiEvent event = events.get(currentIdx);
-			if (Global.isLyricsEvent(event)) {
-				if(event.StartTime >= nTicks) {
-					break;
-				}
-				sendMidiEvent(event, (currentIdx < eventSize - 1) ? events.get(currentIdx + 1) : null, true);
-			}
-			currentIdx++;
-		}
-
-		curTick = nTicks;
-	}
 }

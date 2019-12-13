@@ -34,7 +34,7 @@ import android.widget.TextView;
 public class Global {
 	private final static boolean DEBUG_FILE = false;
 
-	private final static boolean D = true;
+	private final static boolean D = false;
 	private final static String TAG = "karaoke";
 
 	public static long DEBUG_TIME = 0;

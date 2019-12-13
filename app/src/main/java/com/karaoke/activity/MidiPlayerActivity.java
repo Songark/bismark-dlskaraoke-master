@@ -29,6 +29,7 @@ import android.widget.VideoView;
 
 import com.karaoke.data.MediaFile;
 import com.karaoke.data.SongInfo;
+import com.karaoke.gk3decoder.SetOptimize;
 import com.sheetmusic.ClefSymbol;
 import com.sheetmusic.FileUri;
 import com.sheetmusic.MidiFile;
@@ -63,6 +64,7 @@ import java.util.zip.CRC32;
 
 import jp.bismark.bssynth.sample.MainActivity;
 
+import static com.karaoke.data.SongInfo.NATION_KOR;
 import static com.sheetmusic.MidiPlayer.PLAYER_PLAYING;
 import static com.sheetmusic.MidiPlayer.PLAYER_SKIPPING;
 
@@ -117,7 +119,7 @@ public class MidiPlayerActivity extends BaseActivity implements MidiPlayer.OnMid
             mTxtDotSinger;
 
     private TextView mTxtSubTitle, mTxtTitle, mTxtComposer, mTxtWriter, mTxtSinger;
-    private View mLnSongInfo, mLnLyrics, mLnMark;
+    private View mLnTitleInfo, mLnSongInfo, mLnLyrics, mLnMark;
     private ImageView[] mTickImages = null;
     private LinearLayout mLnLyricView;
     private KTextLayout kTxtLayout;
@@ -176,6 +178,7 @@ public class MidiPlayerActivity extends BaseActivity implements MidiPlayer.OnMid
         mTxtDotSinger = (TextView) findViewById(R.id.txtDotSinger);
 
         lnSongInfoPanel = findViewById(R.id.lnSongInfoPanel);
+        mLnTitleInfo = findViewById(R.id.lnTitleInfo);
         mLnSongInfo = findViewById(R.id.lnSongInfo);
         mLnLyrics = findViewById(R.id.lnLyrics);
         mLnMark = findViewById(R.id.lnMark);
@@ -187,8 +190,14 @@ public class MidiPlayerActivity extends BaseActivity implements MidiPlayer.OnMid
         mTickImages[3] = (ImageView) findViewById(R.id.tick3);
 
         kTxtLayout = new KTextLayout(cntxt);
-        kTxtLayout.setTypeface(getSimheiFont());
-        kTxtLayout.setFontsize(getResources().getDimensionPixelSize(R.dimen.fontsize_lyric));
+        if (curSongInfo.songNation == NATION_KOR) {
+            kTxtLayout.setTypeface(getLayoutFont_Kr());
+            kTxtLayout.setFontsize(getResources().getDimensionPixelSize(R.dimen.fontsize_lyric));
+        }
+        else {
+            kTxtLayout.setTypeface(getLayoutFont_Cn());
+            kTxtLayout.setFontsize(getResources().getDimensionPixelSize(R.dimen.fontsize_lyric) + 2);
+        }
         MidiPlayer.getPlayer().setKTextLayout(kTxtLayout);
         MidiPlayer.getPlayer().setParent(this);
         mLnLyricView.addView(kTxtLayout);
@@ -329,7 +338,11 @@ public class MidiPlayerActivity extends BaseActivity implements MidiPlayer.OnMid
         // -------------------------------------------------------------
 
         // Change All fonts
-        FontChangeCrawler fontChanger = new FontChangeCrawler(getLatoRegularFont());
+        FontChangeCrawler fontChanger;
+        if (curSongInfo.songNation == NATION_KOR)
+            fontChanger= new FontChangeCrawler(getMainFont_Kr());
+        else
+            fontChanger= new FontChangeCrawler(getMainFont_Cn());
         fontChanger.replaceFonts((ViewGroup)this.findViewById(R.id.mainView));
 
         // Start BGV Task
@@ -347,15 +360,14 @@ public class MidiPlayerActivity extends BaseActivity implements MidiPlayer.OnMid
         @Override
         public void run() {
             try {
-                Thread.sleep(200);
-                while ( MidiPlayer.getPlayer().getTextThread().bIsSkip == true ||
+                Thread.sleep(100);
+                while ( /*MidiPlayer.getPlayer().getTextThread().bIsSkip == true ||*/
                         MidiPlayer.getPlayer().getLengthOfAnimChars() > 0) {
-                    Thread.sleep(10);
+                    Thread.sleep(1);
                 }
             } catch (Exception ex) {
 
             }
-            MainActivity.getPlayer().Start();
             MidiPlayer.getPlayer().setPlayState(PLAYER_PLAYING);
             mLyricsHandler.sendEmptyMessage(4);
         }
@@ -363,11 +375,13 @@ public class MidiPlayerActivity extends BaseActivity implements MidiPlayer.OnMid
 
     private void seekByScroll(int scrollTicks)
     {
-        changePlay(PLAY_NONE);
-        MidiPlayer.getPlayer().seekByTicks(scrollTicks);
+        if (MidiPlayer.getPlayer().getPlayState() == PLAYER_PLAYING) {
+            changePlay(PLAY_NONE);
+            MidiPlayer.getPlayer().seekByTicks(scrollTicks);
 
-        mWaitSkipThread = new Thread(mWaitSkipRunnable);
-        mWaitSkipThread.start();
+            mWaitSkipThread = new Thread(mWaitSkipRunnable);
+            mWaitSkipThread.start();
+        }
     }
 
     public void playSong() throws InterruptedException {
@@ -850,11 +864,10 @@ public class MidiPlayerActivity extends BaseActivity implements MidiPlayer.OnMid
                     // kTxtLayout.initLyrics();
                     mGreetManager.show("<간  주>");
                     mTickIdx = 3;
-                    changePlay(PLAY_NONE);
+                    changePlay(PLAY_SONGINFO);
                     break;
                 case 4: // 간주 플레이 끝
                     changePlay(PLAY_LYRICS);
-
                     break;
                 case 5: // 가사 플레이 끝
                     changePlay(PLAY_NONE);
@@ -1037,24 +1050,28 @@ public class MidiPlayerActivity extends BaseActivity implements MidiPlayer.OnMid
         if (iType == PLAY_SONGINFO) {
             Global.Debug("changePlay: PLAY_SONGINFO");
             mLnLyrics.setVisibility(View.INVISIBLE);
-            mLnMark.setVisibility(View.GONE);
+            mLnMark.setVisibility(View.INVISIBLE);
+            mLnTitleInfo.setVisibility(View.VISIBLE);
             mLnSongInfo.setVisibility(View.VISIBLE);
         } else if (iType == PLAY_LYRICS) {
             Global.Debug("changePlay: PLAY_LYRICS");
             mGreetManager.hide();
-            mLnSongInfo.setVisibility(View.VISIBLE);
-            mLnMark.setVisibility(View.GONE);
+            mLnSongInfo.setVisibility(View.INVISIBLE);
+            mLnTitleInfo.setVisibility(View.INVISIBLE);
+            mLnMark.setVisibility(View.INVISIBLE);
             mLnLyrics.setVisibility(View.VISIBLE);
         } else if (iType == PLAY_MARK) {
             Global.Debug("changePlay: PLAY_MARK");
-            mLnLyrics.setVisibility(View.GONE);
-            mLnSongInfo.setVisibility(View.GONE);
+            mLnLyrics.setVisibility(View.INVISIBLE);
+            mLnSongInfo.setVisibility(View.INVISIBLE);
             mLnMark.setVisibility(View.VISIBLE);
+            mLnTitleInfo.setVisibility(View.VISIBLE);
         } else if (iType == PLAY_NONE) {
             Global.Debug("changePlay: PLAY_NONE");
-            mLnLyrics.setVisibility(View.GONE);
-            mLnSongInfo.setVisibility(View.VISIBLE);
-            mLnMark.setVisibility(View.GONE);
+            mLnTitleInfo.setVisibility(View.INVISIBLE);
+            mLnLyrics.setVisibility(View.INVISIBLE);
+            mLnSongInfo.setVisibility(View.INVISIBLE);
+            mLnMark.setVisibility(View.INVISIBLE);
         }
         mCurrentPlayStep = iType;
     }

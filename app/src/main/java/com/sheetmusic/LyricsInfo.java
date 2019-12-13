@@ -300,6 +300,7 @@ public class LyricsInfo {
 				strTemp = br.readLine().trim();		// singer
 
 				while((str = br.readLine()) != null && !getUpper(str).equals("@") && !getUpper(str).equals("->")) {
+					str = str.trim();
 					if (str.length() == 0) continue;
 
 					// str = str.toLowerCase();
