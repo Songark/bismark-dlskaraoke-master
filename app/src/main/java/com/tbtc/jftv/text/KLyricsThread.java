@@ -32,6 +32,7 @@ public class KLyricsThread extends Thread {
 
 	public ArrayList<Double> aniTimes;
 	public ArrayList<Integer> charCounts;
+	public final Object aniTimesLock = new Object();
 
 	private long startTime = 0;
 	private double aniTime;
@@ -221,7 +222,6 @@ public class KLyricsThread extends Thread {
 		isAniUp = true;
 		isAniEnd = false;
 
-		// int iInterludeLyricsIdx = MidiPlayer.getPlayer().getInterludeLyricsIndex();
 		int iInterludeLyricsIdx = -1;
 		
 		double fSpeed;
@@ -229,6 +229,7 @@ public class KLyricsThread extends Thread {
 		long delay = 0;
 		int iOldUpIdx = 0;
 		int iOldDownIdx = 0;
+		int nSkipStage = 0;
 		try {
 			while(!isExit) {
 				if (isPause) {
@@ -236,38 +237,57 @@ public class KLyricsThread extends Thread {
 					continue;
 				}
 
-				if (aniTimes.size() < 1 || aniTimes.get(0) == null)
+				int aniTimesSize = 0, charCountsSize = 0;
+
+				synchronized (aniTimesLock) {
+					aniTimesSize = aniTimes.size();
+					charCountsSize = charCounts.size();
+					if (aniTimesSize > 0)
+						aniTime = aniTimes.get(0);
+					if (charCountsSize > 0)
+						charCount = charCounts.get(0);
+				}
+
+				if (nSkipStage == 1) {
+					if (aniTimesSize == 0 || aniTime > 0) {
+						MidiPlayer.getPlayer().setSkippingFinsihed(true);
+						nSkipStage = 2;
+					}
+				}
+
+				if (aniTimesSize == 0 || charCountsSize == 0)
 					continue;
-				if (charCounts.size() < 1 || charCounts.get(0) == null)
-					continue;
-				if (upRects.size() < 1 || downRects.size() < 1)
+				if (upRects.size() == 0 || downRects.size() == 0)
 					continue;
 
-				aniTime = aniTimes.get(0);
 				if (aniTime == -1) {
 					currentIdx--;
 					initUpTxt(true, true);
 					initDownTxt(true, true);
 					isAniUp = true;
 					isAniEnd = false;
-					aniTimes.remove(0);
-					charCounts.remove(0);
+					synchronized (aniTimesLock) {
+						aniTimes.remove(0);
+						charCounts.remove(0);
+					}
 					Global.Debug("Changed Lyric Lines");
 					continue;
 				}
+				else if (aniTime == 0 && nSkipStage == 0) {
+					nSkipStage = 1;
+				}
 
 				startTime = System.currentTimeMillis();
-
-				Rect rc;		
+				Rect rc;
 				if (isAniUp) {
 					if(isInitingUpTxt) continue;
 
 					try {
-						aniTime = aniTimes.get(0);
-						aniTimes.remove(0);
-						charCount = charCounts.get(0);
-						charCounts.remove(0);
-						Global.Debug("Removing count-" + aniTimes.size());
+						synchronized (aniTimesLock) {
+							aniTimes.remove(0);
+							charCounts.remove(0);
+						}
+						Global.Debug("Removing count-" + aniTimesSize);
 					}
 					catch (Exception ex)
 					{
@@ -277,7 +297,7 @@ public class KLyricsThread extends Thread {
 
 					iOldUpIdx = upRectIdx;
 					if(iOldUpIdx == 0 && !isInitedDownTxt && currentIdx != iInterludeLyricsIdx) {
-						Global.Debug("Calling initDownTxt: count-" + aniTimes.size());
+						Global.Debug("Calling initDownTxt: count-" + aniTimesSize);
 						initDownTxt(false, aniTime > 0 ? false : true);
 						if(mEnThread != null) mEnThread.initDownTxt(false);
 					}
@@ -330,11 +350,11 @@ public class KLyricsThread extends Thread {
 					if(isInitingDownTxt) continue;
 
 					try {
-						aniTime = aniTimes.get(0);
-						aniTimes.remove(0);
-						charCount = charCounts.get(0);
-						charCounts.remove(0);
-						Global.Debug("Removing count-" + aniTimes.size());
+						synchronized (aniTimesLock) {
+							aniTimes.remove(0);
+							charCounts.remove(0);
+						}
+						Global.Debug("Removing count-" + aniTimesSize);
 					}
 					catch (Exception ex)
 					{
@@ -344,7 +364,7 @@ public class KLyricsThread extends Thread {
 
 					iOldDownIdx = downRectIdx;
 					if(iOldDownIdx == 0 && !isInitedUpTxt && currentIdx != iInterludeLyricsIdx) {
-						Global.Debug("Calling initUpTxt: count-" + aniTimes.size());
+						Global.Debug("Calling initUpTxt: count-" + aniTimesSize);
 						initUpTxt(false, aniTime > 0 ? false : true);
 						if(mEnThread != null) mEnThread.initUpTxt(false);
 					}

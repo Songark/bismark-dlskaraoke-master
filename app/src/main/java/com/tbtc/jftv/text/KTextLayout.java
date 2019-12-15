@@ -248,22 +248,19 @@ public class KTextLayout extends LinearLayout {
 		imgDownEnTxtRed.setImageBitmap(null);
 	}
 
-	public int getCharCounts() {
-		if (m_lThread != null) {
-			return m_lThread.aniTimes.size();
-		}
-		return 0;
-	}
-
 	public void nextChar(double fTime, int iCharCount) {
 		if(m_lThreadEn != null) {
-			m_lThreadEn.aniTimes.add(fTime);
-			m_lThreadEn.charCounts.add(iCharCount);
+			synchronized (m_lThreadEn.aniTimesLock) {
+				m_lThreadEn.aniTimes.add(fTime);
+				m_lThreadEn.charCounts.add(iCharCount);
+			}
 		}
 		
 		if (m_lThread != null) {
-			m_lThread.aniTimes.add(fTime);
-			m_lThread.charCounts.add(iCharCount);
+			synchronized (m_lThread.aniTimesLock) {
+				m_lThread.aniTimes.add(fTime);
+				m_lThread.charCounts.add(iCharCount);
+			}
 		}
 	}
 	

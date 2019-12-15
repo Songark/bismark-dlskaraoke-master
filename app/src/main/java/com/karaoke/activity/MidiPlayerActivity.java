@@ -99,6 +99,7 @@ public class MidiPlayerActivity extends BaseActivity implements MidiPlayer.OnMid
 
     private int key;
     private boolean isDestroyed;
+    private boolean scrollLock = false;
 
     private long startedTime;
     private static int mTempoStep = 100; // Used for Midi Player
@@ -361,21 +362,35 @@ public class MidiPlayerActivity extends BaseActivity implements MidiPlayer.OnMid
         public void run() {
             try {
                 Thread.sleep(100);
-                while ( /*MidiPlayer.getPlayer().getTextThread().bIsSkip == true ||*/
-                        MidiPlayer.getPlayer().getLengthOfAnimChars() > 0) {
-                    Thread.sleep(1);
+                long startTime = System.currentTimeMillis();
+                while (MidiPlayer.getPlayer().IsSkippingFinsihed_KLyricsThread() == false) {
+                    Thread.sleep(10);
+                    if (System.currentTimeMillis() - startTime > 1000 * 2) {
+                        MidiPlayer.getPlayer().setSkippingFinsihed(true);
+                        break;
+                    }
                 }
+                MidiPlayer.getPlayer().setPlayState(PLAYER_PLAYING);
+                mLyricsHandler.sendEmptyMessage(4);
+                startTime = System.currentTimeMillis();
+                while (MidiPlayer.getPlayer().IsSkippingFinsihed_KTextThread() == false) {
+                    Thread.sleep(10);
+                    if (System.currentTimeMillis() - startTime > 1000 * 2) {
+                        MidiPlayer.getPlayer().setSkippingFinsihed_KTextThread(true);
+                        break;
+                    }
+                }
+                scrollLock = false;
             } catch (Exception ex) {
 
             }
-            MidiPlayer.getPlayer().setPlayState(PLAYER_PLAYING);
-            mLyricsHandler.sendEmptyMessage(4);
         }
     };
 
     private void seekByScroll(int scrollTicks)
     {
-        if (MidiPlayer.getPlayer().getPlayState() == PLAYER_PLAYING) {
+        if (MidiPlayer.getPlayer().getPlayState() == PLAYER_PLAYING && !scrollLock) {
+            scrollLock = true;
             changePlay(PLAY_NONE);
             MidiPlayer.getPlayer().seekByTicks(scrollTicks);
 

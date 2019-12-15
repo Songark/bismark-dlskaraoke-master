@@ -138,17 +138,18 @@ public class KTextThread extends Thread {
 
 					event = events.get(currentIdx);
 					if (Global.isLyricsEvent(event)) {
+						boolean isSkip = (event.StartTime <= skippingTicks) ? true : false;
+						if (isSkip) {
+							processInterludes(event.StartTime);
+						}
+						else {
+							bIsSkip = false;
+						}
+
 						if(event.StartTime >= curTick) {
 							break;
 						}
-						if (bIsSkip && event.StartTime < skippingTicks) {
-							processInterludes(event.StartTime);
-							sendMidiEvent(event, (currentIdx < eventSize - 1) ? events.get(currentIdx + 1) : null, true);
-						}
-						else {
-							sendMidiEvent(event, (currentIdx < eventSize - 1) ? events.get(currentIdx + 1) : null, false);
-							bIsSkip = false;
-						}
+						sendMidiEvent(event, (currentIdx < eventSize - 1) ? events.get(currentIdx + 1) : null, isSkip);
 					}
 					currentIdx++;
 				}
@@ -274,8 +275,6 @@ public class KTextThread extends Thread {
 					fTxtTime *= dblTempo;
 				}
 			}
-			Global.Debug("[KTextThread::sendMidiEvent] fTxtTime-" + fTxtTime + ", eventStarttime-" + curEvent.StartTime +
-					", count-" + MidiPlayer.getPlayer().getLengthOfAnimChars());
 			MidiPlayer.getPlayer().nextChar(fTxtTime);
 		}
 	}

@@ -24,6 +24,7 @@ public class KLyricsEnThread extends Thread {
 	Boolean isExit = false;
 	public ArrayList<Double> aniTimes;
 	public ArrayList<Integer> charCounts;
+	public final Object aniTimesLock = new Object();
 
 	private long startTime = 0;
 	private double aniTime;

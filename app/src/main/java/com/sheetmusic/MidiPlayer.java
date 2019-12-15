@@ -55,6 +55,8 @@ public class MidiPlayer {
 	public void setPlayState(int iValue) {
 		playState = iValue;
 	}
+	private final Object lock = new Object();
+	private boolean bSkippingFlag = false;
 
 	public MidiFile m_midifile = null;          /* The midi file to play */
 	public int skippingTicks = 0;
@@ -819,7 +821,7 @@ public class MidiPlayer {
 	public int skipPlay(int iLang) {
 		int iRet = 1;
 		Global.Debug("[MidiPlayer::skipPlay] begin");
-
+		setSkippingFinsihed(false);
 		kTxtThread = new KTextThread();
 		if (lyrics != null) {
 			if (curSongInfo.songType == SongInfo.TYPE_MAGICSING)
@@ -835,13 +837,6 @@ public class MidiPlayer {
 		Global.Debug("[MidiPlayer::skipPlay] end");
 		return iRet;
 	}
-
-	public int getLengthOfAnimChars()
-	{
-		return kTxtLayout.getCharCounts();
-	}
-
-
 
 	public int play(int iLang) {
 		int iRet = 1;
@@ -948,6 +943,35 @@ public class MidiPlayer {
 			e.printStackTrace();
 		}
 		return result;
+	}
+
+	public boolean IsSkippingFinsihed_KLyricsThread()
+	{
+		boolean isResult;
+		synchronized (lock) {
+			isResult = bSkippingFlag;
+		}
+		return isResult;
+	}
+
+	public void setSkippingFinsihed(boolean flag)
+	{
+		synchronized (lock) {
+			bSkippingFlag = flag;
+		}
+	}
+
+	public boolean IsSkippingFinsihed_KTextThread()
+	{
+		if (getTextThread() != null)
+			return !getTextThread().bIsSkip;
+		return true;
+	}
+
+	public void setSkippingFinsihed_KTextThread(boolean flag)
+	{
+		if (getTextThread() != null)
+			getTextThread().bIsSkip = !flag;
 	}
 
 	public void nextChar(double fTime) {
